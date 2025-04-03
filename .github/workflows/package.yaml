@@ -1,0 +1,24 @@
+name: Package and Upload Artifact
+
+on:
+  push:
+    branches:
+      - trunk
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create ZIP archive
+        run: |
+          zip -r source-files.zip . -x "*.git*" -x "*.github*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: caalyx-plugin-${{ github.run_number }}
+          path: caalyx-plugin-${{ github.run_number }}.zip
