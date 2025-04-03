@@ -18,6 +18,7 @@ jobs:
         with:
           name: caalyx-plugin-${{ github.run_number }}
           path: |
+            *
             !.git/
             !.github/
             !.gitignore
