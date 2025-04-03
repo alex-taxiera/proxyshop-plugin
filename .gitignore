@@ -1,4 +1,4 @@
 .vscode/
 __pycache__/
-config_ini/*
-templates/*
+config_ini/*.ini
+templates/*.psd
