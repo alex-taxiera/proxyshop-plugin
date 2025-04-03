@@ -1,0 +1,30 @@
+[COLORS]
+title = "Color Options"
+
+[COLORS."Max.Colors"]
+title = "Max Frame Colors"
+desc = """How many colors can the frame split by before the card just becomes Gold?"""
+type = "options"
+default = "2"
+options = ["1", "2", "3", "4", "5"]
+
+[COLORS."Front.Face.Colors"]
+title = "Authentic Front Face Colors"
+desc = """When enabled, front face MDFC and Transform cards will have authentic lighter colors."""
+type = "bool"
+default = 1
+
+[COLORS."Multicolor.Pinlines"]
+title = "Multicolor Pinlines"
+desc = """When enabled, the Pinlines on multicolor cards will use blended colors instead of Gold."""
+type = "bool"
+default = 1
+
+[TEXT]
+title = "Text Options"
+
+[TEXT.Nickname]
+title = "Use Nickname"
+desc = """When enabled, card will be rendered with both a 'real' name and a 'nickname' you can enter manually."""
+type = "bool"
+default = 0

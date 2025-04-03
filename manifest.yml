@@ -1,0 +1,14 @@
+PLUGIN:
+  name: 'Caalyx'
+  source: 'https://github.com/alex-taxiera/proxyshop-plugin'
+  license: 'LGPL'
+
+borderless-ikoria.psd:
+  name: 'Borderless Ikoria'
+  id: '1jUzmokiR4dCV6m781PM_DLdKjEtokX2F'
+  desc: 'A Borderless frame based on the Godzilla themed box toppers from Ikoria.'
+  templates:
+    Borderless Ikoria:
+      BorderlessIkoriaTemplate:
+        - normal
+
