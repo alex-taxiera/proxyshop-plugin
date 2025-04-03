@@ -7,6 +7,8 @@ from src.enums.settings import BorderlessTextbox
 
 
 class BorderlessIkoriaTemplate(BorderlessVectorTemplate):
+    template_suffix = "Borderless Ikoria"
+
     """
     * Settings
     """
