@@ -2,6 +2,8 @@ PLUGIN:
   name: 'Caalyx'
   source: 'https://github.com/alex-taxiera/proxyshop-plugin'
   license: 'LGPL'
+  requires: '^1.13.0'
+  version: '1.0.0'
 
 borderless-ikoria.psd:
   name: 'Borderless Ikoria'
