@@ -13,4 +13,11 @@ borderless-ikoria.psd:
     Borderless Ikoria:
       BorderlessIkoriaTemplate:
         - normal
-
+borderless-modern.psd:
+  name: 'Borderless Modern'
+  id: ''
+  desc: 'A Borderless frame based on the Modern Horizons 2 set.'
+  templates:
+    Borderless Modern:
+      BorderlessModernTemplate:
+        - normal

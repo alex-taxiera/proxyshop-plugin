@@ -1,9 +1,37 @@
 [FRAME]
 title = "Frame Options"
 
+[FRAME."Textbox.Size"]
+title = "Textbox Size"
+desc = """Governs the height of the textbox. Automatic will use a size proportional to the number of lines in card text."""
+type = "options"
+default = "Automatic"
+options = ["Tall", "Normal", "Medium", "Short", "Automatic"]
+
+[FRAME."Crown.Texture"]
+title = "Legendary Crown Textured"
+desc = """When disabled, removes textures from Legendary Crown to give it a more minimalist look."""
+type = "bool"
+default = 1
+
 [FRAME."Disable.Border"]
 title = "Disable Border"
 desc = """When enabled, black border is hidden"""
+type = "bool"
+default = 0
+
+[TEXT]
+title = "Text Options"
+
+[TEXT.Nickname]
+title = "Use Nickname"
+desc = """When enabled, card will be rendered with both a 'real' name and a 'nickname' you can enter manually or specify via [nick=...]."""
+type = "bool"
+default = 0
+
+[TEXT."Nickname.In.Oracle"]
+title = "Nickname in Oracle"
+desc = """When enabled, cards that are rendered with a nickname will replace the card name in their oracle text with their nickname."""
 type = "bool"
 default = 0
 
@@ -44,20 +72,5 @@ default = 1
 [COLORS."Nickname"]
 title = "Colored Nickname Plate"
 desc = """When enabled, the Nickname plate under the title bar will be colored instead of plain black."""
-type = "bool"
-default = 0
-
-[TEXT]
-title = "Text Options"
-
-[TEXT.Nickname]
-title = "Use Nickname"
-desc = """When enabled, card will be rendered with both a 'real' name and a 'nickname' you can enter manually or specify via [nick=...]."""
-type = "bool"
-default = 0
-
-[TEXT."Nickname.In.Oracle"]
-title = "Nickname in Oracle"
-desc = """When enabled, cards that are rendered with a nickname will replace the card name in their oracle text with their nickname."""
 type = "bool"
 default = 0
