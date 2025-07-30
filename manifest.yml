@@ -13,11 +13,29 @@ borderless-ikoria.psd:
     Borderless Ikoria:
       BorderlessIkoriaTemplate:
         - normal
-borderless-modern.psd:
-  name: 'Borderless Modern'
-  id: ''
-  desc: 'A Borderless frame based on the Modern Horizons 2 set.'
+
+# borderless-modern.psd:
+#   name: 'Borderless Modern'
+#   id: ''
+#   desc: 'A Borderless frame based on the styles updated in 2023.'
+#   templates:
+#     Borderless Modern:
+#       BorderlessModernTemplate:
+#         - normal
+#         - transform_front
+#         - transform_back
+#         - mdfc_front
+#         - mdfc_back
+
+borderless-showcase-fca.psd:
+  name: 'Borderless Showcase (FCA)'
+  id: '1mUo7QxDcXUzMdhh-c9RXKN2GvZE2zuFd'
+  desc: 'A Borderless frame based on the FCA Showcase frame.'
   templates:
-    Borderless Modern:
-      BorderlessModernTemplate:
+    Borderless Showcase FCA:
+      BorderlessShowcaseFCATemplate:
         - normal
+        - transform_front
+        - transform_back
+        - mdfc_front
+        - mdfc_back

@@ -12,15 +12,15 @@ from src.enums.layers import LAYERS
 from src.schema.adobe import EffectStroke
 
 
-from src.utils.adobe import LayerObjectTypes
+from src.text_layers import FormattedTextArea, TextField
+from src.utils.adobe import LayerObjectTypes, ArtLayer
 
-from src.enums.settings import (
-    BorderlessColorMode,
-    BorderlessTextbox)
+from src.enums.settings import BorderlessColorMode, BorderlessTextbox
 
 # return self.layout.file.get('additional_cfg', {}).get('nick', None)
 
-class BorderlessBorderMod():
+
+class BorderlessBorderMod:
     """Borderless Border Mod"""
 
     """
@@ -30,7 +30,9 @@ class BorderlessBorderMod():
     @cached_property
     def disable_border(self) -> bool:
         setting = CFG.get_setting("FRAME", "Disable.Border", False)
-        override = self.layout.file.get('additional_cfg', {}).get('disable_border', None)
+        override = self.layout.file.get("additional_cfg", {}).get(
+            "disable_border", None
+        )
 
         if override is not None:
             return override == "true"
@@ -41,12 +43,12 @@ class BorderlessBorderMod():
     def border_color(self) -> str:
         """Use 'black' unless an alternate color and a valid border group is provided."""
         if self.disable_border:
-            return 'black'
-        override = self.layout.file.get('additional_cfg', {}).get('border_color', None)
+            return "black"
+        override = self.layout.file.get("additional_cfg", {}).get("border_color", None)
         if override is not None:
             return override
         return super().border_color
-    
+
     def disable_border_group(self) -> None:
         """Disable the border group if the border is disabled."""
         if self.disable_border:
@@ -56,8 +58,6 @@ class BorderlessBorderMod():
     @property
     def frame_layer_methods(self) -> list[Callable]:
         return [*super().frame_layer_methods, self.disable_border_group]
-
-
 
 
 class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
@@ -201,6 +201,112 @@ class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         if self.is_legendary:
             psd.copy_layer_fx(self.nickname_fx, self.crown_group.parent)
 
+class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplate):
+    @cached_property
+    def drop_shadow_enabled(self) -> bool:
+        return False
+
+
+    @cached_property
+    def size(self) -> str:
+        """Layer name associated with the size of the textbox."""
+
+        # Check for textless
+        if self.is_textless:
+            return BorderlessTextbox.Textless
+
+        return BorderlessTextbox.Tall
+
+    def rules_text_and_pt_layers(self) -> None:
+        """Add rules and power/toughness text."""
+        self.text.extend([
+            FormattedTextArea(
+                layer=self.text_layer_rules,
+                contents=self.layout.oracle_text,
+                flavor=self.layout.flavor_text,
+                reference=self.textbox_reference,
+                divider=self.divider_layer,
+                pt_reference=self.pt_reference,
+                centered=False,
+                vertically_centered=False
+            ),
+            TextField(
+                layer=self.text_layer_pt,
+                contents=f"{self.layout.power}/{self.layout.toughness}"
+            ) if self.is_creature else None
+        ])
+
+    def format_nickname_text(self) -> None:
+        # Center the card name on the nickname plate
+        psd.align_left(self.text_layer_name, self.text_layer_nickname)
+
+    @cached_property
+    def enabled_shapes(self) -> list[Union[ArtLayer, LayerSet, None]]:
+        """Vector shapes that should be enabled during the enable_shape_layers step. Should be
+            a list of layer, layer group, or None objects."""
+        return [self.border_shape]
+
+
+    def enable_frame_layers(self) -> None:
+        """Build the card frame by enabling and/or generating various layer."""
+
+        # Enable vector shapes
+        self.enable_shape_layers()
+
+        # Enable layer masks
+        self.enable_layer_masks()
+
+        # PT Box -> Single static layer
+        # if self.is_creature and self.pt_group:
+        #     self.pt_group.visible = True
+        #     self.generate_layer(
+        #         group=self.pt_group,
+        #         colors=self.pt_colors,
+        #         masks=self.pt_masks)
+
+        # Color Indicator -> Blended solid color layers
+        if self.is_type_shifted and self.indicator_group:
+            self.generate_layer(
+                group=self.indicator_group,
+                colors=self.indicator_colors,
+                masks=self.indicator_masks)
+
+        # Pinlines -> Solid color or gradient layers
+        # for group in [g for g in self.pinlines_groups if g]:
+        #     group.visible = True
+        #     self.generate_layer(
+        #         group=group,
+        #         colors=self.pinlines_colors,
+        #         masks=self.pinlines_masks)
+
+        # Twins -> Blended texture layers
+        # if self.twins_group:
+        #     self.generate_layer(
+        #         group=self.twins_group,
+        #         colors=self.twins_colors,
+        #         masks=self.twins_masks)
+
+        # Textbox -> Blended texture layers
+        # if self.textbox_group:
+        #     self.generate_layer(
+        #         group=self.textbox_group,
+        #         colors=self.textbox_colors,
+        #         masks=self.textbox_masks)
+
+        # Background layer -> Blended texture layers
+        if self.background_group:
+            self.generate_layer(
+                group=self.background_group,
+                colors=self.background_colors,
+                masks=self.background_masks)
+
+        # Legendary crown
+        # if self.is_legendary:
+        #     self.enable_crown()
+
+
+
+
 class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     template_suffix = "Borderless Modern"
 
@@ -221,16 +327,16 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     # }
 
     pinlines_color_map = {
-        'W': "#F6F6EF",
-        'U': "#0075be",
-        'B': "#383630",
-        'R': "#ef3827",
-        'G': "#0b7446",
-        'Gold': "#e9c748",
-        'Land': "#a59385",
-        'Artifact': "#8a9fad",
-        'Colorless': "#E6ECF2",
-        'Vehicle': "#4D2D05"
+        "W": "#F6F6EF",
+        "U": "#0075be",
+        "B": "#383630",
+        "R": "#ef3827",
+        "G": "#0b7446",
+        "Gold": "#e9c748",
+        "Land": "#a59385",
+        "Artifact": "#8a9fad",
+        "Colorless": "#E6ECF2",
+        "Vehicle": "#4D2D05",
     }
 
     # twins_color_map = {
@@ -248,16 +354,16 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     # }
 
     twins_color_map = {
-        'W': "#878377",
-        'U': "#0075be",
-        'B': "#383630",
-        'R': "#b82e1c",
-        'G': "#1f593f",
-        'Gold': "#94762f",
-        'Land': "#8f8c88",
-        'Artifact': "#8a9fad",
-        'Colorless': "#E6ECF2",
-        'Vehicle': "#4D2D05"
+        "W": "#878377",
+        "U": "#0075be",
+        "B": "#383630",
+        "R": "#b82e1c",
+        "G": "#1f593f",
+        "Gold": "#94762f",
+        "Land": "#8f8c88",
+        "Artifact": "#8a9fad",
+        "Colorless": "#E6ECF2",
+        "Vehicle": "#4D2D05",
     }
 
     dual_land_color = "#85817e"
@@ -269,23 +375,23 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     # * Black: #282523 — *perhaps consider lowering the opacity of the nameplate for this one color identity to 60%*
 
     dark_twins_color_map = {
-        'W': "#878377",
-        'U': "#036cad",
-        'B': "#383630",
-        'R': "#972122",
-        'G': "#15543a",
-        'Gold': "#94762f",
-        'Land': "#878480",
-        'Artifact': "#8a9fad",
-        'Colorless': "#E6ECF2",
-        'Vehicle': "#4D2D05"
+        "W": "#878377",
+        "U": "#036cad",
+        "B": "#383630",
+        "R": "#972122",
+        "G": "#15543a",
+        "Gold": "#94762f",
+        "Land": "#878480",
+        "Artifact": "#8a9fad",
+        "Colorless": "#E6ECF2",
+        "Vehicle": "#4D2D05",
     }
 
     @cached_property
     def pt_pinlines_color_map(self) -> dict[str, str]:
         return {
             **self.pinlines_color_map.copy(),
-            'B': "#292622",
+            "B": "#292622",
         }
 
     pt_fill_color_map = {
@@ -295,9 +401,9 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "R": "#972122",
         "G": "#185231",
         "Gold": "#87693f",
-        'Artifact': "#365d6b",
-        'Colorless': "#A7C6ED",
-        'Vehicle': "#4f6066"
+        "Artifact": "#365d6b",
+        "Colorless": "#A7C6ED",
+        "Vehicle": "#4f6066",
     }
 
     @cached_property
@@ -305,21 +411,22 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         """Maps color values for the Legendary Crown."""
         return {
             **super().crown_color_map,
-            'B': "#116cad",
-            'Artifact': "#a3b6bf",
+            "U": "#116cad",
+            "Artifact": "#a3b6bf",
         }
 
     @cached_property
     def drop_shadow_enabled(self) -> bool:
         return False
-    
+
     @cached_property
     def textbox_colors(self):
         if self.is_land:
             return psd.get_pinline_gradient(
                 colors=self.twins,
                 color_map=self.dark_color_map,
-                location_map=self.gradient_location_map)
+                location_map=self.gradient_location_map,
+            )
 
         return self.dark_bg
 
@@ -330,25 +437,33 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         colors = self.twins
 
         # Color enabled hybrid OR color enabled multicolor
-        if (self.is_hybrid and self.hybrid_colored) or (self.is_multicolor and self.multicolor_twins):
+        if (self.is_hybrid and self.hybrid_colored) or (
+            self.is_multicolor and self.multicolor_twins
+        ):
             colors = self.identity
         # Color disabled hybrid cards
         elif self.is_hybrid:
             colors = LAYERS.HYBRID
 
         # Use artifact twins if artifact mode isn't colored
-        if self.is_artifact and not self.is_land and self.artifact_color_mode not in [
-            BorderlessColorMode.Twins_And_PT,
-            BorderlessColorMode.Twins,
-            BorderlessColorMode.All
-        ]:
+        if (
+            self.is_artifact
+            and not self.is_land
+            and self.artifact_color_mode
+            not in [
+                BorderlessColorMode.Twins_And_PT,
+                BorderlessColorMode.Twins,
+                BorderlessColorMode.All,
+            ]
+        ):
             colors = LAYERS.ARTIFACT
 
         # Return Solid Color or Gradient notation
         return psd.get_pinline_gradient(
             colors=colors,
             color_map=self.pinlines_color_map,
-            location_map=self.gradient_location_map)
+            location_map=self.gradient_location_map,
+        )
 
     @cached_property
     def pt_colors(self):
@@ -357,18 +472,25 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         colors = self.twins
 
         # Color enabled hybrid OR color enabled multicolor
-        if (self.is_hybrid and self.hybrid_colored) or (self.is_multicolor and self.multicolor_pt):
+        if (self.is_hybrid and self.hybrid_colored) or (
+            self.is_multicolor and self.multicolor_pt
+        ):
             colors = self.identity[-1]
         # Use Hybrid color for color-disabled hybrid cards
         elif self.is_hybrid:
             colors = LAYERS.HYBRID
 
         # Use artifact twins color if artifact mode isn't colored
-        if self.is_artifact and not self.is_land and self.artifact_color_mode not in [
-            BorderlessColorMode.Twins_And_PT,
-            BorderlessColorMode.All,
-            BorderlessColorMode.PT
-        ]:
+        if (
+            self.is_artifact
+            and not self.is_land
+            and self.artifact_color_mode
+            not in [
+                BorderlessColorMode.Twins_And_PT,
+                BorderlessColorMode.All,
+                BorderlessColorMode.PT,
+            ]
+        ):
             colors = LAYERS.ARTIFACT
 
         # Use Vehicle for non-colored artifacts
@@ -381,43 +503,58 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     def pt_outer_colors(self) -> Union[list[int], list[dict]]:
         # Return Solid Color or Gradient notation
         return psd.get_pinline_gradient(
-            colors=self.pt_colors,
-            color_map=self.pt_pinlines_color_map)
-    
+            colors=self.pt_colors, color_map=self.pt_pinlines_color_map
+        )
+
     @cached_property
     def pt_inner_colors(self) -> Union[list[int], list[dict]]:
         # Return Solid Color or Gradient notation
         return self.pt_fill_color_map[self.pt_colors]
 
-    
     @cached_property
     def card_name_group(self) -> Optional[LayerSet]:
         return psd.getLayerSet(LAYERS.NAME, self.twins_group)
-    
+
     @cached_property
     def typeline_group(self) -> Optional[LayerSet]:
         return psd.getLayerSet(LAYERS.TYPE_LINE, self.twins_group)
-    
+
     @cached_property
     def pt_inner_group(self) -> Optional[LayerSet]:
         return psd.getLayerSet("Inner", [self.pt_group, LAYERS.SHAPE])
-    
+
     @cached_property
     def pt_outer_group(self) -> Optional[LayerSet]:
         return psd.getLayerSet("Outer", [self.pt_group, LAYERS.SHAPE])
-    
+
     @cached_property
     def twins_shape(self) -> Union[LayerObjectTypes, list[LayerObjectTypes], None]:
         """Separate shapes for Name and Typeline box."""
         return [
             psd.getLayer(
-                LAYERS.TRANSFORM if self.is_transform or self.is_mdfc else LAYERS.NORMAL,
-                [self.twins_group, LAYERS.NAME, LAYERS.SHAPE]),
+                (
+                    LAYERS.TRANSFORM
+                    if self.is_transform or self.is_mdfc
+                    else LAYERS.NORMAL
+                ),
+                [self.twins_group, LAYERS.NAME, LAYERS.SHAPE],
+            ),
             psd.getLayer(
                 LAYERS.TEXTLESS if self.is_textless else self.size,
-                [self.twins_group, LAYERS.TYPE_LINE, LAYERS.SHAPE])
+                [self.twins_group, LAYERS.TYPE_LINE, LAYERS.SHAPE],
+            ),
         ]
-    
+
+    @cached_property
+    def crown_shape(self) -> Optional[LayerSet]:
+        """Vector shape for Legendary Crown."""
+        if not self.is_legendary or not self.is_nickname: # Only return if Legendary and Nickname
+            return None
+        return psd.getLayerSet(
+            LAYERS.NICKNAME,
+            [self.crown_group, LAYERS.SHAPE]
+        )
+
     def enable_frame_layers(self) -> None:
         """Build the card frame by enabling and/or generating various layer."""
 
@@ -434,55 +571,61 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
                 self.generate_layer(
                     group=self.pt_inner_group,
                     colors=self.pt_inner_colors,
-                    masks=self.pt_masks)
+                    masks=self.pt_masks,
+                )
 
             if self.pt_outer_group:
                 self.generate_layer(
                     group=self.pt_outer_group,
                     colors=self.pt_outer_colors,
-                    masks=self.pt_masks)
+                    masks=self.pt_masks,
+                )
 
         # Color Indicator -> Blended solid color layers
         if self.is_type_shifted and self.indicator_group:
             self.generate_layer(
                 group=self.indicator_group,
                 colors=self.indicator_colors,
-                masks=self.indicator_masks)
+                masks=self.indicator_masks,
+            )
 
         # Pinlines -> Solid color or gradient layers
         for group in [g for g in self.pinlines_groups if g]:
             group.visible = True
             self.generate_layer(
-                group=group,
-                colors=self.pinlines_colors,
-                masks=self.pinlines_masks)
+                group=group, colors=self.pinlines_colors, masks=self.pinlines_masks
+            )
 
         # Twins -> Blended texture layers
         if self.card_name_group:
             self.generate_layer(
                 group=self.card_name_group,
                 colors=self.twins_colors,
-                masks=self.twins_masks)
-            
+                masks=self.twins_masks,
+            )
+
         if self.typeline_group:
             self.generate_layer(
                 group=self.typeline_group,
                 colors=self.twins_colors if self.is_land else self.dark_bg,
-                masks=self.twins_masks)
+                masks=self.twins_masks,
+            )
 
         # Textbox -> Blended texture layers
         if self.textbox_group:
             self.generate_layer(
                 group=self.textbox_group,
                 colors=self.textbox_colors,
-                masks=self.textbox_masks)
+                masks=self.textbox_masks,
+            )
 
         # Background layer -> Blended texture layers
         if self.background_group:
             self.generate_layer(
                 group=self.background_group,
                 colors=self.background_colors,
-                masks=self.background_masks)
+                masks=self.background_masks,
+            )
 
         # Legendary crown
         if self.is_legendary:
@@ -490,7 +633,4 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
 
         # Color the nickname plate if enabled in settings
         if self.is_nickname and self.is_colored_nickname:
-            self.generate_layer(
-                group=self.nickname_group,
-                colors=self.twins_colors)
-
+            self.generate_layer(group=self.nickname_group, colors=self.twins_colors)

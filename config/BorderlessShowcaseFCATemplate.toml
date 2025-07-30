@@ -1,0 +1,23 @@
+[FRAME]
+title = "Frame Options"
+
+[FRAME."Disable.Border"]
+title = "Disable Border"
+desc = """When enabled, black border is hidden"""
+type = "bool"
+default = 0
+
+[TEXT]
+title = "Text Options"
+
+[TEXT.Nickname]
+title = "Use Nickname"
+desc = """When enabled, card will be rendered with both a 'real' name and a 'nickname' you can enter manually or specify via [nick=...]."""
+type = "bool"
+default = 0
+
+[TEXT."Nickname.In.Oracle"]
+title = "Nickname in Oracle"
+desc = """When enabled, cards that are rendered with a nickname will replace the card name in their oracle text with their nickname."""
+type = "bool"
+default = 0
