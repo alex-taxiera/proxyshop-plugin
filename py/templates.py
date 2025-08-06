@@ -202,7 +202,7 @@ class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
             psd.copy_layer_fx(self.nickname_fx, self.crown_group.parent)
 
 class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplate):
-    template_suffix = "Borderless Ikoria, FCA"
+    template_suffix = "Borderless Showcase, FCA"
 
     @cached_property
     def drop_shadow_enabled(self) -> bool:
@@ -305,8 +305,6 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
         # Legendary crown
         # if self.is_legendary:
         #     self.enable_crown()
-
-
 
 
 class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
