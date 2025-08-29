@@ -61,7 +61,7 @@ class BorderlessBorderMod:
 
 
 class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
-    template_suffix = "Ikoria Crystal"
+    template_suffix = "Borderless Ikoria"
 
     """
     * Settings
