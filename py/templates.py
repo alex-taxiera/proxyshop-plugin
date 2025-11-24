@@ -551,6 +551,12 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
 
         return psd.get_reference_layer(LAYERS.NORMAL, _shape_group)
 
+    def format_nickname_text(self) -> None:
+        """Actions taken if this is a 'Nickname' render."""
+        psd.align_all(self.text_layer_name, self.nickname_shape)
+        if self.is_drop_shadow:
+            psd.enable_layer_fx(self.text_layer_nickname)
+
     """
     * Transform Methods
     """
