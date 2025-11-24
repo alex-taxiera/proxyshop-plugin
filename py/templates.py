@@ -414,8 +414,9 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     @cached_property
     def textbox_colors(self):
         if self.is_land:
+            colors = self.identity if len(self.identity) < 3 else self.twins
             return psd.get_pinline_gradient(
-                colors=self.twins,
+                colors=colors,
                 color_map=self.dark_color_map,
                 location_map=self.gradient_location_map,
             )
@@ -626,7 +627,7 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         if self.typeline_group:
             self.generate_layer(
                 group=self.typeline_group,
-                colors=self.twins_colors if self.is_land else self.dark_bg,
+                colors=self.twins_colors if self.is_land and 1 < len(self.identity) < 5 else self.dark_bg,
                 masks=self.twins_masks,
             )
 
