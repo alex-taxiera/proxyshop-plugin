@@ -333,7 +333,7 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "Gold": "#ecd26f",
         "Land": "#a59385",
         "Artifact": "#899ba6",
-        "Colorless": "#E6ECF2",
+        "Colorless": "#c0bebc",
         "Vehicle": "#8c5a3e",
     }
 
@@ -360,7 +360,7 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "Gold": "#947732",
         "Land": "#8f8c88",
         "Artifact": "#4f6b7d",
-        "Colorless": "#E6ECF2",
+        "Colorless": "#82807d",
         "Vehicle": "#4D2D05",
     }
 
@@ -394,7 +394,7 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "G": "#185231",
         "Gold": "#8d7043",
         "Artifact": "#365d6b",
-        "Colorless": "#A7C6ED",
+        "Colorless": "#82807d",
         "Vehicle": "#674331",
     }
 
