@@ -13,7 +13,7 @@ from src.schema.adobe import EffectStroke
 
 
 from src.text_layers import FormattedTextArea, TextField
-from src.utils.adobe import LayerObjectTypes, ArtLayer
+from src.utils.adobe import LayerObjectTypes, ArtLayer, ReferenceLayer
 
 from src.enums.settings import BorderlessColorMode, BorderlessTextbox
 
@@ -130,11 +130,9 @@ class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         # Enable layer masks
         self.enable_layer_masks()
 
-        print("self.layout", self.layout.scryfall)
 
         # PT Box -> Single static layer
         if self.is_creature and self.pt_group:
-            print("self.pt_colors", self.pt_colors)
             self.pt_group.visible = True
             self.generate_layer(
                 group=self.pt_group, colors=self.pt_colors, masks=self.pt_masks
@@ -310,7 +308,7 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
 class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     template_suffix = "Borderless Modern, Borderless Alt"
 
-    dark_bg = "#0D0D0D"
+    dark_bg = "#050505"
 
     # pinlines_color_map = {
     #     # Default pinline colors
@@ -328,15 +326,15 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
 
     pinlines_color_map = {
         "W": "#F6F6EF",
-        "U": "#0075be",
-        "B": "#383630",
-        "R": "#ef3827",
-        "G": "#0b7446",
-        "Gold": "#e9c748",
+        "U": "#0077b3",
+        "B": "#3a3832",
+        "R": "#d6523d",
+        "G": "#0d7446",
+        "Gold": "#ecd26f",
         "Land": "#a59385",
-        "Artifact": "#8a9fad",
+        "Artifact": "#899ba6",
         "Colorless": "#E6ECF2",
-        "Vehicle": "#4D2D05",
+        "Vehicle": "#8c5a3e",
     }
 
     # twins_color_map = {
@@ -355,24 +353,18 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
 
     twins_color_map = {
         "W": "#878377",
-        "U": "#0075be",
-        "B": "#383630",
-        "R": "#b82e1c",
-        "G": "#1f593f",
-        "Gold": "#94762f",
+        "U": "#0070ba",
+        "B": "#282523",
+        "R": "#a62112",
+        "G": "#09523c",
+        "Gold": "#947732",
         "Land": "#8f8c88",
-        "Artifact": "#8a9fad",
+        "Artifact": "#4f6b7d",
         "Colorless": "#E6ECF2",
         "Vehicle": "#4D2D05",
     }
 
     dual_land_color = "#85817e"
-    # * Multicolor nameplate fill note: *I use slightly different colors for different card types, but what this really strongly depends on is the background (art) color, so I'll list them in order of preference for all purposes but also state what card type I commonly use them for below the first choice.*
-    # * Multicolor All-Card-Type Recommended Default: #94762f
-    # * Multicolor Creature: #9e7939
-    # * Multicolor Land: #9e822f
-    # * Multicolor Other: #9b822a
-    # * Black: #282523 — *perhaps consider lowering the opacity of the nameplate for this one color identity to 60%*
 
     dark_twins_color_map = {
         "W": "#878377",
@@ -396,14 +388,14 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
 
     pt_fill_color_map = {
         "W": "#8f8071",
-        "U": "#1e5576",
+        "U": "#1f587b",
         "B": "#3c342c",
-        "R": "#972122",
+        "R": "#9a292c",
         "G": "#185231",
-        "Gold": "#87693f",
+        "Gold": "#8d7043",
         "Artifact": "#365d6b",
         "Colorless": "#A7C6ED",
-        "Vehicle": "#4f6066",
+        "Vehicle": "#674331",
     }
 
     @cached_property
@@ -457,11 +449,10 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
             ]
         ):
             colors = LAYERS.ARTIFACT
-
         # Return Solid Color or Gradient notation
         return psd.get_pinline_gradient(
             colors=colors,
-            color_map=self.pinlines_color_map,
+            color_map=self.twins_color_map,
             location_map=self.gradient_location_map,
         )
 
@@ -548,12 +539,40 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     @cached_property
     def crown_shape(self) -> Optional[LayerSet]:
         """Vector shape for Legendary Crown."""
-        if not self.is_legendary or not self.is_nickname: # Only return if Legendary and Nickname
-            return None
-        return psd.getLayerSet(
-            LAYERS.NICKNAME,
-            [self.crown_group, LAYERS.SHAPE]
-        )
+        crown_layer = f"{LAYERS.LEGENDARY} {LAYERS.NICKNAME}" if self.is_nickname else LAYERS.LEGENDARY
+        return psd.getLayer(crown_layer, [self.crown_group, LAYERS.SHAPE])
+
+    @cached_property
+    def nickname_shape(self) -> Optional[ReferenceLayer]:
+        """Shape layer behind the original card name on the nickname frame element. Also used
+            to position the original card name as a reference."""
+        _shape_group = psd.getLayerSet(LAYERS.SHAPE, self.nickname_group)
+
+        return psd.get_reference_layer(LAYERS.NORMAL, _shape_group)
+
+    """
+    * Transform Methods
+    """
+
+    def text_layers_transform_front(self) -> None:
+        """Switch font colors on 'Authentic' front face cards."""
+        super().text_layers_transform_front()
+
+        print("self.is_authentic_front", self.is_authentic_front)
+        # Use white text
+        if self.is_authentic_front:
+            self.swap_font_color(self.RGB_WHITE)
+
+        # Switch flipside PT to light gray
+        # if not self.is_authentic_front and self.is_flipside_creature:
+        #     self.text_layer_flipside_pt.textItem.color = psd.get_rgb(*[186, 186, 186])
+
+    """
+    * MDFC Methods
+    """
+
+    def text_layers_mdfc_front(self) -> None:
+        pass
 
     def enable_frame_layers(self) -> None:
         """Build the card frame by enabling and/or generating various layer."""

@@ -14,18 +14,18 @@ borderless-ikoria.psd:
       BorderlessIkoriaTemplate:
         - normal
 
-# borderless-modern.psd:
-#   name: 'Borderless Modern'
-#   id: ''
-#   desc: 'A Borderless frame based on the styles updated in 2023.'
-#   templates:
-#     Borderless Modern:
-#       BorderlessModernTemplate:
-#         - normal
-#         - transform_front
-#         - transform_back
-#         - mdfc_front
-#         - mdfc_back
+borderless-modern.psd:
+  name: 'Borderless Modern'
+  id: ''
+  desc: 'A Borderless frame based on the styles updated in 2023.'
+  templates:
+    Borderless Modern:
+      BorderlessModernTemplate:
+        - normal
+        - transform_front
+        - transform_back
+        - mdfc_front
+        - mdfc_back
 
 borderless-showcase-fca.psd:
   name: 'Borderless Showcase (FCA)'
