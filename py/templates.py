@@ -5,6 +5,7 @@ from photoshop.api._layerSet import LayerSet
 
 from src import CFG
 import src.helpers as psd
+from src.helpers.text import get_font_size, set_text_size_and_leading
 from src.helpers.effects import apply_fx
 from src.templates import BorderlessVectorTemplate
 from src.enums.settings import BorderlessTextbox
@@ -130,7 +131,6 @@ class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         # Enable layer masks
         self.enable_layer_masks()
 
-
         # PT Box -> Single static layer
         if self.is_creature and self.pt_group:
             self.pt_group.visible = True
@@ -199,13 +199,13 @@ class BorderlessIkoriaTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         if self.is_legendary:
             psd.copy_layer_fx(self.nickname_fx, self.crown_group.parent)
 
+
 class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     template_suffix = "FCA Showcase"
 
     @cached_property
     def drop_shadow_enabled(self) -> bool:
         return False
-
 
     @cached_property
     def size(self) -> str:
@@ -219,22 +219,41 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
 
     def rules_text_and_pt_layers(self) -> None:
         """Add rules and power/toughness text."""
-        self.text.extend([
-            FormattedTextArea(
-                layer=self.text_layer_rules,
-                contents=self.layout.oracle_text,
-                flavor=self.layout.flavor_text,
-                reference=self.textbox_reference,
-                divider=self.divider_layer,
-                pt_reference=self.pt_reference,
-                centered=False,
-                vertically_centered=False
-            ),
-            TextField(
-                layer=self.text_layer_pt,
-                contents=f"{self.layout.power}/{self.layout.toughness}"
-            ) if self.is_creature else None
-        ])
+        self.text.extend(
+            [
+                FormattedTextArea(
+                    layer=self.text_layer_rules,
+                    contents=self.layout.oracle_text,
+                    flavor=self.layout.flavor_text,
+                    reference=self.textbox_reference,
+                    divider=self.divider_layer,
+                    pt_reference=self.pt_reference,
+                    centered=False,
+                    vertically_centered=False,
+                ),
+                (
+                    TextField(
+                        layer=self.text_layer_pt,
+                        contents=f"{self.layout.power}/{self.layout.toughness}",
+                    )
+                    if self.is_creature
+                    else None
+                ),
+            ]
+        )
+    
+    def fix_rules_text(self) -> None:
+        """Fix rules text to have the correct leading."""
+        layer = self.text_layer_rules
+        font_size = get_font_size(layer)
+
+        set_text_size_and_leading(layer, font_size, font_size - 1)
+
+    @property
+    def post_text_methods(self):
+        """Add post-text adjustments method."""
+        funcs = [self.fix_rules_text]
+        return [*super().post_text_methods, *funcs]
 
     def format_nickname_text(self) -> None:
         # Center the card name on the nickname plate
@@ -243,9 +262,8 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
     @cached_property
     def enabled_shapes(self) -> list[Union[ArtLayer, LayerSet, None]]:
         """Vector shapes that should be enabled during the enable_shape_layers step. Should be
-            a list of layer, layer group, or None objects."""
+        a list of layer, layer group, or None objects."""
         return [self.border_shape]
-
 
     def enable_frame_layers(self) -> None:
         """Build the card frame by enabling and/or generating various layer."""
@@ -269,7 +287,8 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
             self.generate_layer(
                 group=self.indicator_group,
                 colors=self.indicator_colors,
-                masks=self.indicator_masks)
+                masks=self.indicator_masks,
+            )
 
         # Pinlines -> Solid color or gradient layers
         # for group in [g for g in self.pinlines_groups if g]:
@@ -298,7 +317,8 @@ class BorderlessShowcaseFCATemplate(BorderlessBorderMod, BorderlessVectorTemplat
             self.generate_layer(
                 group=self.background_group,
                 colors=self.background_colors,
-                masks=self.background_masks)
+                masks=self.background_masks,
+            )
 
         # Legendary crown
         # if self.is_legendary:
@@ -309,20 +329,6 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     template_suffix = "Borderless Modern, Borderless Alt"
 
     dark_bg = "#050505"
-
-    # pinlines_color_map = {
-    #     # Default pinline colors
-    #     'W': [246, 246, 239],
-    #     'U': [0, 117, 190],
-    #     'B': [56, 54, 48],
-    #     'R': [239, 56, 39],
-    #     'G': [11, 116, 70],
-    #     'Gold': [233, 199, 72],
-    #     'Land': [165, 147, 133],
-    #     'Artifact': [138, 159, 173],
-    #     'Colorless': [230, 236, 242],
-    #     'Vehicle': [77, 45, 5]
-    # }
 
     pinlines_color_map = {
         "W": "#F6F6EF",
@@ -335,48 +341,6 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "Artifact": "#899ba6",
         "Colorless": "#c0bebc",
         "Vehicle": "#8c5a3e",
-    }
-
-    # twins_color_map = {
-    #     # Default twins colors
-    #     'W': [246, 246, 239],
-    #     'U': [0, 117, 190],
-    #     'B': [56, 54, 48],
-    #     'R': [239, 56, 39],
-    #     'G': [11, 116, 70],
-    #     'Gold': [233, 199, 72],
-    #     'Land': [165, 147, 133],
-    #     'Artifact': [138, 159, 173],
-    #     'Colorless': [230, 236, 242],
-    #     'Vehicle': [77, 45, 5]
-    # }
-
-    twins_color_map = {
-        "W": "#878377",
-        "U": "#0070ba",
-        "B": "#282523",
-        "R": "#a62112",
-        "G": "#09523c",
-        "Gold": "#947732",
-        "Land": "#8f8c88",
-        "Artifact": "#4f6b7d",
-        "Colorless": "#82807d",
-        "Vehicle": "#4D2D05",
-    }
-
-    dual_land_color = "#85817e"
-
-    dark_twins_color_map = {
-        "W": "#878377",
-        "U": "#036cad",
-        "B": "#383630",
-        "R": "#972122",
-        "G": "#15543a",
-        "Gold": "#94762f",
-        "Land": "#878480",
-        "Artifact": "#8a9fad",
-        "Colorless": "#E6ECF2",
-        "Vehicle": "#4D2D05",
     }
 
     @cached_property
@@ -397,6 +361,70 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         "Colorless": "#82807d",
         "Vehicle": "#674331",
     }
+
+    twins_color_map = {
+        "W": "#878377",
+        "U": "#0070ba",
+        "B": "#282523",
+        "R": "#a62112",
+        "G": "#09523c",
+        "Gold": "#947732",
+        "Land": "#8f8c88",
+        "Artifact": "#4f6b7d",
+        "Colorless": "#82807d",
+        "Vehicle": "#4D2D05",
+    }
+
+    dark_twins_color_map = {
+        "W": "#878377",
+        "U": "#036cad",
+        "B": "#383630",
+        "R": "#972122",
+        "G": "#15543a",
+        "Gold": "#94762f",
+        "Land": "#878480",
+        "Artifact": "#8a9fad",
+        "Colorless": "#E6ECF2",
+        "Vehicle": "#4D2D05",
+    }
+
+    neon_color_map = {
+        "yellow": "#feef0c",
+        "blue": "#00aeec",
+        "green": "#00a551",
+        "red": "#eb4653",
+        "purple": "#b04288",
+        "pink": "#ea2073",
+    }
+
+    @cached_property
+    def neon_color(self) -> Optional[str]:
+        setting = CFG.get_setting("COLORS", "Neon.Color", None)
+        override = self.layout.file.get("additional_cfg", {}).get("neon", None)
+
+        color = override or setting
+
+        if not color:
+            return None
+
+
+        if color in self.neon_color_map:
+            return self.neon_color_map[color]
+
+        return color
+
+    @cached_property
+    def crown_texture_enabled(self) -> bool:
+        """Returns True if Legendary crown clipping texture should be enabled."""
+        if self.neon_color:
+            return False
+
+        return bool(CFG.get_setting(
+            section="FRAME",
+            key="Crown.Texture",
+            default=True))
+
+    chocobo_pt_fill = "#3e3831"
 
     @cached_property
     def crown_color_map(self) -> dict:
@@ -494,6 +522,9 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     @cached_property
     def pt_outer_colors(self) -> Union[list[int], list[dict]]:
         # Return Solid Color or Gradient notation
+        if self.neon_color:
+            return self.neon_color
+
         return psd.get_pinline_gradient(
             colors=self.pt_colors, color_map=self.pt_pinlines_color_map
         )
@@ -501,7 +532,24 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     @cached_property
     def pt_inner_colors(self) -> Union[list[int], list[dict]]:
         # Return Solid Color or Gradient notation
+        if self.neon_color:
+            return self.chocobo_pt_fill
+
         return self.pt_fill_color_map[self.pt_colors]
+
+    @cached_property
+    def crown_colors(self) -> Union[list[int], list[dict]]:
+        if self.neon_color:
+            return self.neon_color
+
+        return super().crown_colors
+
+    @cached_property
+    def pinlines_colors(self) -> Union[list[int], list[dict]]:
+        if self.neon_color:
+            return self.neon_color
+
+        return super().pinlines_colors
 
     @cached_property
     def card_name_group(self) -> Optional[LayerSet]:
@@ -540,13 +588,17 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
     @cached_property
     def crown_shape(self) -> Optional[LayerSet]:
         """Vector shape for Legendary Crown."""
-        crown_layer = f"{LAYERS.LEGENDARY} {LAYERS.NICKNAME}" if self.is_nickname else LAYERS.LEGENDARY
+        crown_layer = (
+            f"{LAYERS.LEGENDARY} {LAYERS.NICKNAME}"
+            if self.is_nickname
+            else LAYERS.LEGENDARY
+        )
         return psd.getLayer(crown_layer, [self.crown_group, LAYERS.SHAPE])
 
     @cached_property
     def nickname_shape(self) -> Optional[ReferenceLayer]:
         """Shape layer behind the original card name on the nickname frame element. Also used
-            to position the original card name as a reference."""
+        to position the original card name as a reference."""
         _shape_group = psd.getLayerSet(LAYERS.SHAPE, self.nickname_group)
 
         return psd.get_reference_layer(LAYERS.NORMAL, _shape_group)
@@ -633,7 +685,11 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         if self.typeline_group:
             self.generate_layer(
                 group=self.typeline_group,
-                colors=self.twins_colors if self.is_land and 1 < len(self.identity) < 5 else self.dark_bg,
+                colors=(
+                    self.twins_colors
+                    if self.is_land and 1 < len(self.identity) < 5
+                    else self.dark_bg
+                ),
                 masks=self.twins_masks,
             )
 
@@ -660,3 +716,67 @@ class BorderlessModernTemplate(BorderlessBorderMod, BorderlessVectorTemplate):
         # Color the nickname plate if enabled in settings
         if self.is_nickname and self.is_colored_nickname:
             self.generate_layer(group=self.nickname_group, colors=self.twins_colors)
+
+
+# class NeonInkTemplate(BorderlessBorderMod, BorderlessModernTemplate):
+#     # yellow feef0c
+#     # blue   00aeec
+#     # green  00a551
+#     # red    eb4653
+#     # purple b04288
+#     # pink   ea2073
+#     # pt fill 3e3831
+
+#     neon_color_map = {
+#         "yellow": "#feef0c",
+#         "blue": "#00aeec",
+#         "green": "#00a551",
+#         "red": "#eb4653",
+#         "purple": "#b04288",
+#         "pink": "#ea2073",
+#     }
+
+#     chocobo_pt_fill = "#3e3831"
+
+#     @cached_property
+#     def neon_color(self) -> bool:
+#         setting = CFG.get_setting("COLORS", "Neon.Color", "")
+#         override = self.layout.file.get("additional_cfg", {}).get("neon", None)
+
+#         color = override or setting
+
+#         if not color:
+#             return None
+
+        
+
+#         if color in self.neon_color_map:
+#             return self.neon_color_map[color]
+
+#         return color
+
+#     @cached_property
+#     def pt_inner_colors(self) -> Union[list[int], list[dict]]:
+#         return self.chocobo_pt_fill
+
+#     @cached_property
+#     def pt_outer_colors(self) -> Union[list[int], list[dict]]:
+#         return self.pinline_color
+
+#     @cached_property
+#     def crown_colors(self) -> Union[list[int], list[dict]]:
+#         return self.pinline_color 
+#         return psd.get_pinline_gradient(
+#             colors="color",
+#             color_map=self.color_map,
+#             location_map=self.gradient_location_map,
+#         )
+
+#     @cached_property
+#     def pinlines_colors(self) -> Union[list[int], list[dict]]:
+#         return self.pinline_color
+#         return psd.get_pinline_gradient(
+#             colors="color",
+#             color_map=self.color_map,
+#             location_map=self.gradient_location_map,
+#         )
