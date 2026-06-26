@@ -3,7 +3,7 @@ PLUGIN:
   source: 'https://github.com/alex-taxiera/proxyshop-plugin'
   license: 'LGPL'
   requires: '^1.13.0'
-  version: '1.1.0'
+  version: '1.1.1'
 
 borderless-ikoria.psd:
   name: 'Borderless Ikoria'
@@ -16,7 +16,7 @@ borderless-ikoria.psd:
 
 borderless-modern.psd:
   name: 'Borderless Modern'
-  id: ''
+  id: '1Q5So0FAv5RQgK9HS9KoknQfNzu7CvGRO'
   desc: 'A Borderless frame based on the styles updated in 2023.'
   templates:
     Borderless Modern:
