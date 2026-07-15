@@ -2,3 +2,4 @@
 __pycache__/
 config_ini/*.ini
 templates/*.psd
+/__init__.py
